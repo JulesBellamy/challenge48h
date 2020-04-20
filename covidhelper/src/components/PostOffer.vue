@@ -76,7 +76,7 @@ export default {
   data () {
     return {
       profil: '',
-      listCategOff: '',
+      allSpe: '',
       allCateg: '',
       offer: {
         idCateg: '',
@@ -102,14 +102,13 @@ export default {
       axios
         .get(`http://localhost:3042/specialites?key=challenge`)
         .then(response => {
-          console.log("ici ptn",response.data)
+          this.allSpe = response.data
       })
     },
     getCateg(){
       axios
         .get(`http://localhost:3042/categories?key=challenge`)
         .then(response => {
-          console.log("là ptn",response.data)
           this.allCateg = response.data;
       })
     },
