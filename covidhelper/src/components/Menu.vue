@@ -7,8 +7,8 @@
     <a href="#" v-on:click="setStateOffre()">Offre</a>
     <a href="#" v-on:click="setStateDemande()">Demande</a>
     <div class="dashboard-cards" v-for="offre in offresList" v-bind:key="offre.id">
-      <div class="card" v-if="state == offre.categorie.specialite">
-        <h2 class="card-title">{{ offre.categorie.specialite}}</h2>
+      <div class="card" v-if="state == offre.specialite.libelle">
+        <h2 class="card-title">{{ offre.specialite.libelle}}</h2>
         <div class="card-flap1">
           <div class="card-description">
             <ul class="task-list">
@@ -47,6 +47,7 @@ export default {
     }
   },
   mounted(){
+    //console.log(localStorage.searchData)
     this.getUserPosWithId(localStorage.searchData);
     // this.getAllOffresNearMe();
   },
@@ -62,7 +63,7 @@ export default {
         .get('http://localhost:3042/offres/link?key=challenge')
         //http://localhost:3042/offres/5/link?key=challenge
         .then(response => {
-          console.log(response.data)
+          //console.log(response.data)
           this.offresList = response.data
         })
     },
@@ -75,7 +76,7 @@ export default {
           }
         })
         .then(response => {
-          console.log(response)
+          console.log(response.data)
           this.offresList = response.data
         })
     },
@@ -83,7 +84,8 @@ export default {
       axios
       .get(`http://localhost:3042/clients/${id}/?key=challenge`)
       .then(response => {
-        console.log(response)
+        //console.log(response.data.position_LAT);
+        //console.log(response.data.position_LONG);
         this.userLat = response.data.position_LAT;
         this.userLong = response.data.position_LONG;
       })
