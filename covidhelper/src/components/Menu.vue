@@ -1,8 +1,27 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
+    <h1>Bienvenue</h1>
+    <a href="#">Vers le profil</a> |
+    <a href="#">Postez une annonce</a>
     <h2>Annonces</h2>
     <div class="dashboard-cards">
+      <div class="card" v-for="offre in offresList" v-bind:key="offre">
+        <h2 class="card-title">Test {{offresList.indexOf(offre)}}</h2>
+        <div class="card-flap1">
+          <div class="card-description">
+            <ul class="task-list">
+              <li>Catégorie : {{ offre.categorie}}</li>
+              <li>Horaire : {{ offre.horaires }}</li>
+              <li>Payant :</li>
+              <li>Utilisateur :</li>
+            </ul>
+            <div class="button-div">
+              <button class="contact-button" v-on:click="goContact()">Contactez cette personne !</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--
       <div class="card">
         <h2 class="card-title">Test 1</h2>
         <div class="card-flap1">
@@ -14,7 +33,7 @@
               <li>Utilisateur :</li>
             </ul>
             <div class="button-div">
-              <button class="contact-button">Contactez cette personne !</button>
+              <button class="contact-button" v-on:click="goContact()">Contactez cette personne !</button>
             </div>
           </div>
         </div>
@@ -66,23 +85,39 @@
             </div>
           </div>
         </div>
-      </div>
+      </div>-->
     </div>
   </div>
 </template>
 
 <script>
 import Vue from "vue";
+import axios from "axios";
 export default {
   
   name: 'Menu',
   data () {
     return {
-      msg: 'Menu'
+      msg: 'Menu',
+      offresList: ''
     }
   },
+  mounted(){
+    this.getAllOffres();
+  },
   methods: {
-
+    getAllOffres: async function(){
+      axios
+        .get('http://localhost:3042/offres?key=challenge')
+        .then(response => {
+          console.log(response.data)
+          this.offresList = response.data
+        })
+    },
+    goContact: function() {
+      console.log("show contacts")
+      //this.$refs["my-modal"].show();
+    },
   }
   
 }
@@ -102,7 +137,7 @@ li {
   margin: 0 10px;
 }
 a {
-  color: #42b983;
+  color: black;
   margin: 5px 5px 5px 5px; 
 }
 .button-div {

@@ -1,10 +1,10 @@
 <template>
 <div class="wrapper">
-
 	<div class="container">
     <img class="logo" src="./../assets/covid_helper.png">
 		
 		<form class="form">
+      <a href='#' class="unavailable" v-on:click="reloadGeo()">{{ msg }}</a>
 			<input type="text" placeholder="Email">
 			<input type="password" placeholder="Mot de passe">
 			<button type="submit" id="login-button" v-on:click="goConnect()">Connexion</button>
@@ -39,45 +39,46 @@
 		<input id="tab-2" type="radio" name="tab" class="sign-up" checked><label for="tab-2" class="tab">Création de compte</label>
 		<div class="login-form">
 			<div class="sign-up-htm">
+        <p class="displayMessageError">{{ displayMessageError }}</p>
 				<div class="group">
-					<label for="user" class="label">Prénom</label>
-					<input id="firstname" type="text" class="input" placeholder="Entrez votre prénom">
+					<label for="firstname" class="label">Prénom</label>
+					<input id="firstname" type="text" class="input" v-model="prenom" placeholder="Entrez votre prénom">
 				</div>
 				<div class="group">
-					<label for="pass" class="label">Nom</label>
-					<input id="lastname" type="text" class="input" placeholder="Entrez votre nom">
+					<label for="lastname" class="label">Nom</label>
+					<input id="lastname" type="text" class="input" v-model="nom" placeholder="Entrez votre nom">
 				</div>
 				<div class="group">
-					<label for="pass" class="label">Adresse mail</label>
-					<input id="pass" type="text" class="input" placeholder="Entrez votre adresse mail">
+					<label for="mail" class="label">Adresse mail</label>
+					<input id="mail" type="text" class="input" v-model="email" placeholder="Entrez votre adresse mail">
 				</div>
 				<div class="group">
 					<label for="pass" class="label">Mot de passe</label>
-					<input id="pass" type="password" class="input" placeholder="Entrez votre mot de passe">
+					<input id="pass" type="password" class="input" v-model="password" placeholder="Entrez votre mot de passe">
 				</div>
         <div class="group">
-					<label for="pass" class="label">Répétez le mot de passe</label>
-					<input id="pass" type="password" class="input" placeholder="Répétez votre mot de passe ici">
+					<label for="passverif" class="label">Répétez le mot de passe</label>
+					<input id="passverif" type="password" class="input" v-model="passverif" placeholder="Répétez votre mot de passe ici">
 				</div>
         <div class="group">
-					<label for="pass" class="label">Contact</label>
-					<input id="pass" type="text" class="input" placeholder="Entrez ici un moyen de vous contacter (téléphone, point de RDV, etc ...)">
+					<label for="contact" class="label">Contact</label>
+					<input id="contact" type="text" class="input" v-model="contact" placeholder="Entrez ici un moyen de vous contacter (téléphone, point de RDV, etc ...)">
 				</div>
         <div class="group">
-					<label for="pass" class="label">Ville</label>
-					<input id="pass" type="text" class="input" placeholder="Entrez le nom de votre ville">
+					<label for="city" class="label">Ville</label>
+					<input id="city" type="text" class="input" v-model="ville" placeholder="Entrez le nom de votre ville">
 				</div>
         <div class="group">
-					<label for="pass" class="label">Code postal</label>
-					<input id="pass" type="text" class="input" placeholder="Entrez votre code postal">
+					<label for="cp" class="label">Code postal</label>
+					<input id="cp" type="text" class="input" v-model="code_postal" placeholder="Entrez votre code postal">
 				</div>
         <div class="group">
-					<label for="pass" class="label">Rue</label>
-					<input id="pass" type="text" class="input" placeholder="Entrez votre rue">
+					<label for="rue" class="label">Rue</label>
+					<input id="rue" type="text" class="input" v-model="rue" placeholder="Entrez votre rue">
 				</div>
 				<div class="hr"></div>
         <div class="group">
-					<input type="submit" class="button" value="Inscription">
+					<a href="#" class="button submitform" v-on:click="createAccount()">Inscription</a>
 				</div>
 			</div>
 		</div>
@@ -93,6 +94,7 @@
 <script>
 import { BootstrapVue, IconsPlugin } from "bootstrap-vue";
 import Vue from "vue";
+import axios from "axios";
 
 Vue.use(BootstrapVue);
 
@@ -100,11 +102,23 @@ export default {
   name: 'connexion',
   data () {
     return {
-      msg: 'connexion'
+      email: '',
+      nom: '',
+      prenom: '',
+      contact: '',
+      ville: '',
+      code_postal: '',
+      rue: '',
+      password: '',
+      passverif: '',
+      lat: '',
+      lon: '',
+      msg: '',
+      displayMessageError: ''
     }
   },
   mounted() {
-    console.log(this.msg);
+      this.getCity();
   },
   methods: {
     goConnect: function() {
@@ -113,9 +127,78 @@ export default {
     goInscription: function() {
       this.$refs["my-modal"].show();
     },
-    hideModal() {
+    hideModal: function() {
       this.$refs["my-modal"].hide();
-    }
+    },
+    createAccount: function() {
+      this.displayMessageError = "";
+      if(this.lat == "" || this.lon == ""){
+        alert("La géolocalisation n'est pas activé.")
+        this.displayMessageError =
+          this.displayMessageError +
+          "La géolocalisation n'est pas activé.";             
+      }
+      else if(this.email == "" || this.nom == "" || this.prenom == "" || this.contact == "" || this.ville == "" || this.rue == "" || this.code_postal == "" || this.password == ""){
+        alert("Remplissez tout les champs.")
+        this.displayMessageError =
+          this.displayMessageError +
+          "Remplissez tout les champs.";        
+      }
+      else if (this.password != this.passverif) {
+        alert("Votre mot de passe et sa confirmation ne concordent pas.")
+        this.displayMessageError =
+          this.displayMessageError +
+          "Votre mot de passe et sa confirmation ne concordent pas.";
+      } else {
+      axios
+        .post(`http://localhost:3042/clients?key=challenge`, {
+          data: {
+            email: this.email,
+            nom: this.nom,
+            prenom: this.prenom,
+            contact: this.contact,
+            ville: this.ville,
+            code_postal: this.code_postal,
+            rue: this.rue,
+            position_LAT: this.lat,
+            position_LONG: this.lon,
+            password: this.password
+          }
+        })
+        .then(response => {
+          console.log(response.data);
+          alert(response.data)
+          if (response.data == false) {
+            this.msg =
+              "Erreur lors de la création.";
+          } else {
+            alert("Création de l'utilisateur effectuée !");
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+      }
+    },
+    getCity: function() {
+      if (navigator.geolocation) {
+      this.idGeo = navigator.geolocation.watchPosition(this.tellPosition);
+      } else {
+        x.innerHTML = "Geolocation is not supported by this browser.";
+      }
+      if(this.lat == "" || this.lon == ""){
+        this.msg = "Cette application a besoin de votre localisation."
+      }
+    },
+    reloadGeo: function(){
+      alert("Dans votre barre de recherche, cliquez sur le bouton de géolocalisation pour autoriser l'application.")
+      alert("Si le message disparait sur l'écran d'accueil, c'est que votre localisation est activée !")
+    },
+    tellPosition: function(position) {
+      this.lat = position.coords.latitude;
+      this.lon = position.coords.longitude;
+      this.msg = ''
+    },
   }
 }
 </script>
@@ -125,6 +208,12 @@ export default {
 .logo{
   width: 300px;
   z-index:99;
+}
+.submitform{
+  text-align: center;
+}
+.displayMessageError{
+  color: red;
 }
 .closeModal {
   width: 99%;
