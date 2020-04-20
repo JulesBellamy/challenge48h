@@ -7,13 +7,13 @@
     <p>Vous voulez publier une demande ou une offre ?</p>
 
 <div>
-  <input type="radio" id="huey" name="spec" value="huey"
+  <input type="radio" id="offre" name="spec" value="huey"
      checked>
-  <label for="huey">Offre</label>
+  <label for="offre">Offre</label>
 </div>
 
 <div>
-  <input type="radio" id="dewey" name="spec" value="dewey">
+  <input type="radio" id="dewey" name="spec" value="">
   <label for="dewey">Demande</label>
 </div>
 
@@ -50,14 +50,10 @@ export default {
   data () {
     return {
       profil: '',
-      listSpec: {
-        offre:'',
-        demande:''
-      }
+      listCategOff: ''
     }
   },
   mounted(){
-    this.getProfil();
     this.getSpecial();
   },
   methods: {
@@ -69,27 +65,12 @@ export default {
     },
     getSpecial(){
       axios
-        .get(`http://localhost:3042/specialites?key=challenge`)
+        .get(`http://localhost:3042/categories?key=challenge`)
         .then(response => {
-          this.listSpec.demande = response.data[0]
-          this.listSpec.offre = response.data[1]
-          console.log(this.listSpec)
-      })
-    },    
-    getProfil(){
-      axios
-        .get(`http://localhost:3042/clients/${localStorage.searchData}/?key=challenge`)
-        .then(response => {
-          this.profil = response.data
-          console.log(this.profil)
-      })
-    },
-    changeContact(){
-            axios
-        .put(`http://localhost:3042/clients/${localStorage.searchData}/?key=challenge`, {})
-        .then(response => {
-          this.profil = response.data
-          console.log(this.profil)
+          console.log(response.data)
+          this.listCategOff = response.data
+          this.listCategDem = response.data
+          console.log("ALL OFF",this.listCategOff)
       })
     }
   }

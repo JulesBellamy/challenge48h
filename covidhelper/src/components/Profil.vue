@@ -12,11 +12,33 @@
     <small><strong>Email: </strong>{{ profil.email }}</small> <br>
     <small><strong>Contact: </strong>{{ profil.contact }}</small><br/>
     <hr/>
-    <input type="text" placeholder="Changer le contact"/><br/><br/>
-    <input type="submit"/>
+      <small><strong>Ville: </strong>{{ profil.ville }}</small> <br>
+    <small><strong>Code Postal: </strong>{{ profil.code_postal }}</small> <br>
+    <small><strong>Rue: </strong>{{ profil.rue }}</small><br/>
     <hr/>
+    <input type="text" v-model="contact" placeholder="Changer le contact"/><br/><br/>
+    <input type="submit" v-on:click="changeContact()"/>    
   </div>
 </div>
+
+    <div class="dashboard-cards" v-for="offre in offresList" v-bind:key="offre">
+      <div class="card" v-if="state == offre.categorie.specialite">
+        <h2 class="card-title">{{ offre.categorie.specialite}}</h2>
+        <div class="card-flap1">
+          <div class="card-description">
+            <ul class="task-list">
+              <li>Catégorie : {{ offre.categorie.libelle}}</li>
+              <li>Horaire : {{ offre.horaires }}</li>
+              <li>Payant : {{ offre.payant }}</li>
+              <li>Utilisateur : {{ offre.client.prenom }} {{ offre.client.nom }}</li>
+            </ul>
+            <div class="button-div">
+              <button class="contact-button" v-on:click="goContact(offre.client.contact)">Contactez cette personne !</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
   </div>
 </template>
@@ -29,11 +51,16 @@ export default {
   name: 'Profil',
   data () {
     return {
-      profil: ''
+      profil: '',
+      contact: '',
+      myList: '',
+      offresList: [],
+      tempData: ''
     }
   },
   mounted(){
     this.getProfil()
+    this.getAllOffresFromMe()
   },
   methods: {
     goAnnonces(){
@@ -47,15 +74,35 @@ export default {
         .get(`http://localhost:3042/clients/${localStorage.searchData}/?key=challenge`)
         .then(response => {
           this.profil = response.data
-          console.log(this.profil)
       })
+    },
+    getAllOffresFromMe: async function(){
+      axios
+        .get(`http://localhost:3042/offres/clients/${localStorage.searchData}/link?key=challenge`)
+        .then(response => {
+          console.log("AAAAAAAAAAAAH",response.data)
+          this.myList = response.data
+          for(let offre of this.myList){
+            
+          axios
+            .get(`http://localhost:3042/offres/${offre.id}/link?key=challenge`)
+            .then(response => {
+              console.log(response.data)
+              this.tempData = response.data
+              this.offresList.push(this.tempData)
+          })
+          }
+        })
     },
     changeContact(){
             axios
-        .put(`http://localhost:3042/clients/${localStorage.searchData}/?key=challenge`, {})
+        .put(`http://localhost:3042/clients/${localStorage.searchData}/?key=challenge`, {
+          data: {
+            contact: this.contact,
+          }
+        })
         .then(response => {
-          this.profil = response.data
-          console.log(this.profil)
+         this.getProfil()
       })
     }
   }

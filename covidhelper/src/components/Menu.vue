@@ -6,8 +6,8 @@
     <h2>Annonces</h2>
     <a href="#" v-on:click="setStateOffre()">Offre</a>
     <a href="#" v-on:click="setStateDemande()">Demande</a>
-    <div class="dashboard-cards">
-      <div class="card" v-for="offre in offresList" v-bind:key="offre" v-if="state == offre.categorie.specialite">
+    <div class="dashboard-cards" v-for="offre in offresList" v-bind:key="offre">
+      <div class="card" v-if="state == offre.categorie.specialite">
         <h2 class="card-title">{{ offre.categorie.specialite}}</h2>
         <div class="card-flap1">
           <div class="card-description">
@@ -17,6 +17,8 @@
               <li>Payant : {{ offre.payant }}</li>
               <li>Utilisateur : {{ offre.client.prenom }} {{ offre.client.nom }}</li>
             </ul>
+            <hr/>
+            <p>Message de l'utilisateur : {{ offre.libelle }}</p>
             <div class="button-div">
               <button class="contact-button" v-on:click="goContact(offre.client.contact)">Contactez cette personne !</button>
             </div>
@@ -39,11 +41,14 @@ export default {
     return {
       msg: 'Menu',
       offresList: '',
-      state: 'Offre'
+      state: 'Offre',
+      userLat: 0,
+      userLong: 0,
     }
   },
   mounted(){
-    this.getAllOffres();
+    this.getUserPosWithId(localStorage.searchData);
+    // this.getAllOffresNearMe();
   },
   methods: {
     goProfil(){
@@ -60,6 +65,31 @@ export default {
           console.log(response.data)
           this.offresList = response.data
         })
+    },
+    getAllOffresNearMe: async function(){
+      axios
+        .post(`http://localhost:3042/offres/around/link?key=challenge`, {
+          data: {
+            lat: this.userLat,
+            long: this.userLong
+          }
+        })
+        .then(response => {
+          console.log(response)
+          this.offresList = response.data
+        })
+    },
+    getUserPosWithId: async function(id){
+      axios
+      .get(`http://localhost:3042/clients/${id}/?key=challenge`)
+      .then(response => {
+        console.log(response)
+        this.userLat = response.data.position_LAT;
+        this.userLong = response.data.position_LONG;
+      })
+      .then(()=>{
+        this.getAllOffresNearMe();
+      })
     },
     goContact: function(string) {
       alert('L\'utilisateur a indiqué comme contact :\n'+string) 
