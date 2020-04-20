@@ -7,43 +7,69 @@
     <p>Vous voulez publier une demande ou une offre ?</p>
 
 <div>
-  <input type="radio" id="offre" name="spec" value="huey"
-     checked>
+  <input type="radio" id="offre" value ="2" name="spec"
+     checked v-model="offer.idSpecial">
   <label for="offre">Offre</label>
 </div>
 
 <div>
-  <input type="radio" id="dewey" name="spec" value="">
+  <input type="radio" id="dewey" name="spec" value="1" v-model="offer.idSpecial">
   <label for="dewey">Demande</label>
 </div>
 
 
- <!--   
+
     <div class="form-group">
     <br />
-      <select v-model="character.theidClass">
-      <label for="lg_class" class="sr-only">
-      Classe du personnage</label>
-      <option disabled value="">Choisir une classe</option>
+    <p>Choisissez une catégorie</p>
+      <select v-model="offer.idCateg">
+      <option disabled value="">Choisir une catégorie</option>
         <option
-        v-for="oneclass in univclasses"
-        :value="oneclass.idClass"
+        v-for="categ in allCateg"
+        :value="categ.id"
         class="form-control"
         id="lg_class"
         name="lg_class"
-        v-bind:key="oneclass.idClass"
+        v-bind:key="categ.id"
         placeholder="Type de personnage"
         >
-        {{ oneclass.name }}
+        {{ categ.libelle }}
         </option>
       </select>
--->
+    </div>
+
+    <p>Précisez ici les jours disponibles, ainsi que les informations supplémentaires que vous souhaitez ajouter.</p>
+    <textarea id="story" name="story"
+          rows="4" cols="33" v-model="offer.libelle">
+    </textarea>
+
+    <p>Précisez ici les horaires souhaitées.</p>
+    <textarea id="story" name="story"
+          rows="1" cols="33" v-model="offer.hour">
+    </textarea>
+
+    <p v-if="offer.idSpecial == 2">Souhaitez-vous être payé pour vos services ?</p>
+    <p v-if="offer.idSpecial == 1">Souhaitez-vous payer la personne qui vous viendra en aide ?</p>
+    <div>
+    <input type="radio" id="scales" name="payed" value="1" v-model="offer.money">
+    <label for="scales">Oui</label>
+    </div>
+
+    <div>
+      <input type="radio" id="horns" name="payed" value="0" v-model="offer.money" checked>
+      <label for="horns">Non</label>
+    </div>
+
+  <input type="submit" class="okButton" v-on:click="postOffer()"/>
   </div>
 </template>
 
 <script>
 import Vue from "vue";
 import axios from "axios";
+import { BootstrapVue, IconsPlugin } from "bootstrap-vue";
+
+Vue.use(BootstrapVue);
 export default {
   
   name: 'PostOffer',
@@ -51,7 +77,14 @@ export default {
     return {
       profil: '',
       listCategOff: '',
-      allCateg: ''
+      allCateg: '',
+      offer: {
+        idCateg: '',
+        idSpecial: '',
+        libelle: '',
+        hour: '',
+        money: ''
+      }
     }
   },
   mounted(){
@@ -77,8 +110,25 @@ export default {
         .get(`http://localhost:3042/categories?key=challenge`)
         .then(response => {
           console.log("là ptn",response.data)
+          this.allCateg = response.data;
       })
-    }    
+    },
+    postOffer(){
+      axios
+        .post(`http://localhost:3042/offres?key=challenge`, {
+          data: {
+            idClient: localStorage.searchData,
+            idCateg: this.offer.idCateg,
+            idSpecialite: this.offer.idSpecial,
+            libelle: this.offer.libelle,
+            payant: this.offer.money,
+            horaires: this.offer.hour
+          }
+        })
+        .then(response => {
+          alert("Annonce créée !")
+      })
+    },  
   }
   
 }
@@ -86,6 +136,16 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.okButton {
+  width: 20%;
+  z-index: 100;
+  background: lightseagreen;
+  height: 4%;
+  margin-top:10px;
+  border-radius:10px;
+  border-color: lightgreen;
+  text-align: center;
+}
 h1, h2 {
   font-weight: normal;
 }
