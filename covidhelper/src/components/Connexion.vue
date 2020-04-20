@@ -5,8 +5,10 @@
 		
 		<form class="form">
       <a href='#' class="unavailable" v-on:click="reloadGeo()">{{ msg }}</a>
-			<input type="text" placeholder="Email">
-			<input type="password" placeholder="Mot de passe">
+			<input type="text" placeholder="Email" v-model="logmail">
+			<input type="password" placeholder="Mot de passe" v-model="logpass">
+      mail : alexandrebroquet.cd@gmail.com<br/>
+      pwd : password<br/>
 			<button type="submit" id="login-button" v-on:click="goConnect()">Connexion</button>
       <br/><br/><hr/><br/>
       <a href="#" v-on:click="goInscription()">Inscription</a>
@@ -102,6 +104,8 @@ export default {
   name: 'connexion',
   data () {
     return {
+      logmail: '',
+      logpass: '',
       email: '',
       nom: '',
       prenom: '',
@@ -114,7 +118,8 @@ export default {
       lat: '',
       lon: '',
       msg: '',
-      displayMessageError: ''
+      displayMessageError: '',
+      temporary: ''
     }
   },
   mounted() {
@@ -122,7 +127,33 @@ export default {
   },
   methods: {
     goConnect: function() {
-      this.$router.push({ name: "menu" });
+      axios
+        .post(`http://localhost:3042/clients/login?key=challenge`, {
+          data: {
+            email: this.logmail,
+            password: this.logpass
+          }
+        })
+        .then(response => {
+          if (
+            response.data.type == "NOT_FOUND" ||
+            response.data.type == "BAD_REQUEST"
+          ) {
+            this.msg = "Identifiants incorrects.";
+          } else {
+            localStorage.searchData = response.data.id
+            this.$router.push({ name: "menu" });
+          }
+          console.log(response.data);
+        })
+        .catch(error => {
+          console.log(error);
+          if (error) {
+            this.displayMessageError =
+              "On a des petits soucis de connexion ! Si ça persiste, revient plus tard ¯\\_(ツ)_/¯.";
+            document.getElementById("loadSpin").style.display = "none";
+          }
+        });
     },
     goInscription: function() {
       this.$refs["my-modal"].show();
@@ -167,12 +198,12 @@ export default {
         })
         .then(response => {
           console.log(response.data);
-          alert(response.data)
           if (response.data == false) {
             this.msg =
               "Erreur lors de la création.";
           } else {
-            alert("Création de l'utilisateur effectuée !");
+            alert("Création de l'utilisateur effectuée ! Vous pouvez vous connecter");
+            location.reload()
           }
         })
         .catch(function(error) {
@@ -184,7 +215,7 @@ export default {
       if (navigator.geolocation) {
       this.idGeo = navigator.geolocation.watchPosition(this.tellPosition);
       } else {
-        x.innerHTML = "Geolocation is not supported by this browser.";
+        this.msg = "Geolocation is not supported by this browser.";
       }
       if(this.lat == "" || this.lon == ""){
         this.msg = "Cette application a besoin de votre localisation."

@@ -12,9 +12,19 @@ export default new Router({
       component: require('@/components/Connexion').default
     },
     {
-      path: 'menu',
+      path: '/menu',
       name: 'menu',
       component: require('@/components/Menu').default
-    }
+    },
+    {
+      path: '/profil',
+      name: 'profil',
+      component: require('@/components/Profil').default
+    },
+    {
+      path: '/postoffer',
+      name: 'postoffer',
+      component: require('@/components/PostOffer').default
+    },
   ]
 })

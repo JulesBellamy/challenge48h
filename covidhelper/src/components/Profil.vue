@@ -1,85 +1,65 @@
 <template>
   <div class="hello">
     <h1>Bienvenue</h1>
-    <a href="#" v-on:click="goProfil()">Vers le profil</a> |
+    <a href="#" v-on:click="goAnnonces()">Retour annonces</a> |
     <a href="#" v-on:click="postAnnonces()">Postez une annonce</a>
-    <h2>Annonces</h2>
-    <a href="#" v-on:click="setStateOffre()">Offre</a>
-    <a href="#" v-on:click="setStateDemande()">Demande</a>
-    <div class="dashboard-cards">
-      <div class="card" v-for="offre in offresList" v-bind:key="offre" v-if="state == offre.categorie.specialite">
-        <h2 class="card-title">{{ offre.categorie.specialite}}</h2>
-        <div class="card-flap1">
-          <div class="card-description">
-            <ul class="task-list">
-              <li>Catégorie : {{ offre.categorie.libelle}}</li>
-              <li>Horaire : {{ offre.horaires }}</li>
-              <li>Payant : {{ offre.payant }}</li>
-              <li>Utilisateur : {{ offre.client.prenom }} {{ offre.client.nom }}</li>
-            </ul>
-            <div class="button-div">
-              <button class="contact-button" v-on:click="goContact(offre.client.contact)">Contactez cette personne !</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    
+    <div class="card member-box shadow-lg">
+  <span class="shape"></span>
+  <div class="card-body">
+    <span class="member-degignation">Contributeur Covid-Helper</span>
+    <h4 class="member-title">{{ profil.nom }} {{ profil.prenom }}</h4>
+    <small><strong>Email: </strong>{{ profil.email }}</small> <br>
+    <small><strong>Contact: </strong>{{ profil.contact }}</small><br/>
+    <hr/>
+    <input type="text" placeholder="Changer le contact"/><br/><br/>
+    <input type="submit"/>
+    <hr/>
   </div>
-  
-</template>
+</div>
 
+  </div>
+</template>
 
 <script>
 import Vue from "vue";
 import axios from "axios";
 export default {
-
-  name: 'Menu',
+  
+  name: 'Profil',
   data () {
     return {
-      msg: 'Menu',
-      offresList: '',
-      state: 'Offre'
+      profil: ''
     }
   },
   mounted(){
-    this.getAllOffres();
+    this.getProfil()
   },
   methods: {
-    goProfil(){
-      this.$router.push({ name: "profil" });
+    goAnnonces(){
+      this.$router.push({ name: "menu" });
     },
     postAnnonces(){
       this.$router.push({ name: "postoffer" });
     },
-    getAllOffres: async function(){
+    getProfil(){
       axios
-        .get('http://localhost:3042/offres/link?key=challenge')
-        //http://localhost:3042/offres/5/link?key=challenge
+        .get(`http://localhost:3042/clients/${localStorage.searchData}/?key=challenge`)
         .then(response => {
-          console.log(response.data)
-          this.offresList = response.data
-        })
+          this.profil = response.data
+          console.log(this.profil)
+      })
     },
-    goContact: function(string) {
-      alert('L\'utilisateur a indiqué comme contact :\n'+string) 
-    },
-    setStateOffre: function(){
-      this.state = 'Offre';
-    },
-    setStateDemande: function(){
-      this.state = 'Demande';
-    },
+    changeContact(){
+            axios
+        .put(`http://localhost:3042/clients/${localStorage.searchData}/?key=challenge`, {})
+        .then(response => {
+          this.profil = response.data
+          console.log(this.profil)
+      })
+    }
   }
-
-//Globalement, pour la mécanique, c'est pas trop trop compliqué
-//Faut d'abord que tu fasses un booléen, et selon son état, tes if appeleront l'un ou l'autre
-//A toi de voir comment tu fais après ça
-
-//Un mec qui arrive sur le site s'attend plus à avoir des offres en vrai
-//Principalement c'est qu'il cherche qqchose, celui qui va pour faire des demandes,
-//c'est qu'il cherche à faire qqchose
-//ok
+  
 }
 </script>
 
@@ -288,5 +268,65 @@ a {
 }
 .dashboard-cards .card-actions .btn:hover {
 	color: #f36525;
+}
+
+/* Profile box */
+
+.member-box {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    max-width: 300px;
+    margin: 100px auto;
+    font-family: 'Raleway', sans-serif;
+    background-color: whitesmoke;
+}
+.member-box .shape {
+    width: 200px;
+    height: 200px;
+    background: var(--primary);
+    opacity: 0.2;
+    position: absolute;
+    top: 0;
+    right: -100px;
+    transform: rotate(45deg);
+}
+
+.member-box .card-img-top {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    margin: 20px auto;
+    text-align: center;
+    box-shadow: 0px 0px 0px 8px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.3s ease;
+}
+
+.member-box:hover .card-img-top {
+    box-shadow: 0px 0px 0px 12px rgba(0, 0, 0, 0.1)
+}
+
+.member-box .member-degignation {
+    color: var(--green);
+}
+
+.member-box .member-title {
+    
+}
+
+.member-box small {
+    font-size: 12px;
+}
+
+.member-box .social a {
+    font-size: 15px;
+    color: var(--green);
+    padding: 10px;
+}
+
+.member-box .card-footer {
+    background-color: transparent;
+    border: 0;
 }
 </style>

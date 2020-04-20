@@ -2,84 +2,98 @@
   <div class="hello">
     <h1>Bienvenue</h1>
     <a href="#" v-on:click="goProfil()">Vers le profil</a> |
-    <a href="#" v-on:click="postAnnonces()">Postez une annonce</a>
-    <h2>Annonces</h2>
-    <a href="#" v-on:click="setStateOffre()">Offre</a>
-    <a href="#" v-on:click="setStateDemande()">Demande</a>
-    <div class="dashboard-cards">
-      <div class="card" v-for="offre in offresList" v-bind:key="offre" v-if="state == offre.categorie.specialite">
-        <h2 class="card-title">{{ offre.categorie.specialite}}</h2>
-        <div class="card-flap1">
-          <div class="card-description">
-            <ul class="task-list">
-              <li>Catégorie : {{ offre.categorie.libelle}}</li>
-              <li>Horaire : {{ offre.horaires }}</li>
-              <li>Payant : {{ offre.payant }}</li>
-              <li>Utilisateur : {{ offre.client.prenom }} {{ offre.client.nom }}</li>
-            </ul>
-            <div class="button-div">
-              <button class="contact-button" v-on:click="goContact(offre.client.contact)">Contactez cette personne !</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-</template>
+    <a href="#" v-on:click="goAnnonces()">Retour annonces</a>
 
+    <p>Vous voulez publier une demande ou une offre ?</p>
+
+<div>
+  <input type="radio" id="huey" name="spec" value="huey"
+     checked>
+  <label for="huey">Offre</label>
+</div>
+
+<div>
+  <input type="radio" id="dewey" name="spec" value="dewey">
+  <label for="dewey">Demande</label>
+</div>
+
+
+ <!--   
+    <div class="form-group">
+    <br />
+      <select v-model="character.theidClass">
+      <label for="lg_class" class="sr-only">
+      Classe du personnage</label>
+      <option disabled value="">Choisir une classe</option>
+        <option
+        v-for="oneclass in univclasses"
+        :value="oneclass.idClass"
+        class="form-control"
+        id="lg_class"
+        name="lg_class"
+        v-bind:key="oneclass.idClass"
+        placeholder="Type de personnage"
+        >
+        {{ oneclass.name }}
+        </option>
+      </select>
+-->
+  </div>
+</template>
 
 <script>
 import Vue from "vue";
 import axios from "axios";
 export default {
-
-  name: 'Menu',
+  
+  name: 'PostOffer',
   data () {
     return {
-      msg: 'Menu',
-      offresList: '',
-      state: 'Offre'
+      profil: '',
+      listSpec: {
+        offre:'',
+        demande:''
+      }
     }
   },
   mounted(){
-    this.getAllOffres();
+    this.getProfil();
+    this.getSpecial();
   },
   methods: {
+    goAnnonces(){
+      this.$router.push({ name: "menu" });
+    },
     goProfil(){
       this.$router.push({ name: "profil" });
     },
-    postAnnonces(){
-      this.$router.push({ name: "postoffer" });
-    },
-    getAllOffres: async function(){
+    getSpecial(){
       axios
-        .get('http://localhost:3042/offres/link?key=challenge')
-        //http://localhost:3042/offres/5/link?key=challenge
+        .get(`http://localhost:3042/specialites?key=challenge`)
         .then(response => {
-          console.log(response.data)
-          this.offresList = response.data
-        })
+          this.listSpec.demande = response.data[0]
+          this.listSpec.offre = response.data[1]
+          console.log(this.listSpec)
+      })
+    },    
+    getProfil(){
+      axios
+        .get(`http://localhost:3042/clients/${localStorage.searchData}/?key=challenge`)
+        .then(response => {
+          this.profil = response.data
+          console.log(this.profil)
+      })
     },
-    goContact: function(string) {
-      alert('L\'utilisateur a indiqué comme contact :\n'+string) 
-    },
-    setStateOffre: function(){
-      this.state = 'Offre';
-    },
-    setStateDemande: function(){
-      this.state = 'Demande';
-    },
+    changeContact(){
+            axios
+        .put(`http://localhost:3042/clients/${localStorage.searchData}/?key=challenge`, {})
+        .then(response => {
+          this.profil = response.data
+          console.log(this.profil)
+      })
+    }
   }
-
-//Globalement, pour la mécanique, c'est pas trop trop compliqué
-//Faut d'abord que tu fasses un booléen, et selon son état, tes if appeleront l'un ou l'autre
-//A toi de voir comment tu fais après ça
-
-//Un mec qui arrive sur le site s'attend plus à avoir des offres en vrai
-//Principalement c'est qu'il cherche qqchose, celui qui va pour faire des demandes,
-//c'est qu'il cherche à faire qqchose
-//ok
+  
 }
 </script>
 
@@ -288,5 +302,65 @@ a {
 }
 .dashboard-cards .card-actions .btn:hover {
 	color: #f36525;
+}
+
+/* Profile box */
+
+.member-box {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    max-width: 300px;
+    margin: 100px auto;
+    font-family: 'Raleway', sans-serif;
+    background-color: whitesmoke;
+}
+.member-box .shape {
+    width: 200px;
+    height: 200px;
+    background: var(--primary);
+    opacity: 0.2;
+    position: absolute;
+    top: 0;
+    right: -100px;
+    transform: rotate(45deg);
+}
+
+.member-box .card-img-top {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    margin: 20px auto;
+    text-align: center;
+    box-shadow: 0px 0px 0px 8px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.3s ease;
+}
+
+.member-box:hover .card-img-top {
+    box-shadow: 0px 0px 0px 12px rgba(0, 0, 0, 0.1)
+}
+
+.member-box .member-degignation {
+    color: var(--green);
+}
+
+.member-box .member-title {
+    
+}
+
+.member-box small {
+    font-size: 12px;
+}
+
+.member-box .social a {
+    font-size: 15px;
+    color: var(--green);
+    padding: 10px;
+}
+
+.member-box .card-footer {
+    background-color: transparent;
+    border: 0;
 }
 </style>
