@@ -50,11 +50,13 @@ export default {
   data () {
     return {
       profil: '',
-      listCategOff: ''
+      listCategOff: '',
+      allCateg: ''
     }
   },
   mounted(){
     this.getSpecial();
+    this.getCateg();
   },
   methods: {
     goAnnonces(){
@@ -65,14 +67,18 @@ export default {
     },
     getSpecial(){
       axios
+        .get(`http://localhost:3042/specialites?key=challenge`)
+        .then(response => {
+          console.log("ici ptn",response.data)
+      })
+    },
+    getCateg(){
+      axios
         .get(`http://localhost:3042/categories?key=challenge`)
         .then(response => {
-          console.log(response.data)
-          this.listCategOff = response.data
-          this.listCategDem = response.data
-          console.log("ALL OFF",this.listCategOff)
+          console.log("là ptn",response.data)
       })
-    }
+    }    
   }
   
 }

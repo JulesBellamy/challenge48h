@@ -6,7 +6,7 @@
     <h2>Annonces</h2>
     <a href="#" v-on:click="setStateOffre()">Offre</a>
     <a href="#" v-on:click="setStateDemande()">Demande</a>
-    <div class="dashboard-cards" v-for="offre in offresList" v-bind:key="offre">
+    <div class="dashboard-cards" v-for="offre in offresList" v-bind:key="offre.id">
       <div class="card" v-if="state == offre.categorie.specialite">
         <h2 class="card-title">{{ offre.categorie.specialite}}</h2>
         <div class="card-flap1">

@@ -82,16 +82,7 @@ export default {
         .then(response => {
           console.log("AAAAAAAAAAAAH",response.data)
           this.myList = response.data
-          for(let offre of this.myList){
-            
-          axios
-            .get(`http://localhost:3042/offres/${offre.id}/link?key=challenge`)
-            .then(response => {
-              console.log(response.data)
-              this.tempData = response.data
-              this.offresList.push(this.tempData)
-          })
-          }
+
         })
     },
     changeContact(){
