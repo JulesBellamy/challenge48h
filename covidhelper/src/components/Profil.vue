@@ -20,10 +20,12 @@
     <input type="submit" v-on:click="changeContact()"/>    
   </div>
 </div>
+<hr/>
+<h2>Liste de mes annonces</h2>
 
-    <div class="dashboard-cards" v-for="offre in offresList" v-bind:key="offre">
+    <div class="dashboard-cards" v-for="offre in myList" v-bind:key="offre">
       <div class="card" v-if="state == offre.categorie.specialite">
-        <h2 class="card-title">{{ offre.categorie.specialite}}</h2>
+        <h2 class="card-title">{{ offre.specialite.libelle}}</h2>
         <div class="card-flap1">
           <div class="card-description">
             <ul class="task-list">
@@ -33,7 +35,7 @@
               <li>Utilisateur : {{ offre.client.prenom }} {{ offre.client.nom }}</li>
             </ul>
             <div class="button-div">
-              <button class="contact-button" v-on:click="goContact(offre.client.contact)">Contactez cette personne !</button>
+              <button class="contact-button" v-on:click="deleteOffer(offre.id)">Supprimez cette annonce</button>
             </div>
           </div>
         </div>
@@ -80,13 +82,11 @@ export default {
       axios
         .get(`http://localhost:3042/offres/clients/${localStorage.searchData}/link?key=challenge`)
         .then(response => {
-          console.log("AAAAAAAAAAAAH",response.data)
           this.myList = response.data
-
         })
     },
     changeContact(){
-            axios
+      axios
         .put(`http://localhost:3042/clients/${localStorage.searchData}/?key=challenge`, {
           data: {
             contact: this.contact,
@@ -95,6 +95,15 @@ export default {
         .then(response => {
          this.getProfil()
       })
+    },
+    deleteOffer(id){
+      axios
+        .delete(`http://localhost:3042/offres/${id}?key=challenge`)
+        .then(response => {
+          console.log("YES", response.data)
+          alert("L'annonce a été supprimée !")
+          this.getAllOffresFromMe()
+        })
     }
   }
   
@@ -128,7 +137,7 @@ a {
           appearance: none;
   outline: 0;
   
-  background-color: #53e3a6;
+  background-color: #DB6C79 ;
   border: 0;
   padding: 10px 15px;
   color: white;
@@ -140,7 +149,7 @@ a {
           transition-duration: 0.25s;
 }
 .contact-button:hover {
-  background-color: #4bce98;
+  background-color: #ED4D6E;
 }
 .hello {
   background: #50a3a2;
