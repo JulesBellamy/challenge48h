@@ -31,7 +31,8 @@
             <ul class="task-list">
               <li>Catégorie : {{ offre.categorie.libelle}}</li>
               <li>Horaire : {{ offre.horaires }}</li>
-              <li>Payant : {{ offre.payant }}</li>
+              <li v-if="offre.payant">Payant</li>
+              <li v-else>Gratuit</li>
               <li>Utilisateur : {{ offre.client.prenom }} {{ offre.client.nom }}</li>
             </ul>
             <div class="button-div">

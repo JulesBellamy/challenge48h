@@ -7,8 +7,6 @@
       <a href='#' class="unavailable" v-on:click="reloadGeo()">{{ msg }}</a>
 			<input type="text" placeholder="Email" v-model="logmail">
 			<input type="password" placeholder="Mot de passe" v-model="logpass">
-      mail : alexandrebroquet.cd@gmail.com<br/>
-      pwd : password<br/>
 			<button type="submit" id="login-button" v-on:click="goConnect()">Connexion</button>
       <br/><br/><hr/><br/>
       <a href="#" v-on:click="goInscription()">Inscription</a>
